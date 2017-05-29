@@ -12,7 +12,8 @@ let gameStats = {
 
 let gameBoard = d3.select('.main').append('svg:svg')
                                   .attr('width', gameOptions.width)
-                                  .attr('height', gameOptions.height);
+                                  .attr('height', gameOptions.height)
+                                  .attr('class', 'gameBoard');
 
 let axes = {
   x: d3.scaleLinear().domain([0, 100]).range(0, gameOptions.width),
@@ -28,39 +29,34 @@ class Player {
     this.r = 5;
     this.angle = 0;
     this.fill = '#ff6600';
-  }
-  render(parent) {
-    let opts = {
-      x: gameOptions.width * 0.5,
-      y: gameOptions.height * 0.5
-    };
-    this.el = parent.append('svg:path').attr('d', this.path).attr('fill', this.fill);
-    this.transform(opts);
+    this.el = gameBoard.append('svg:path').attr('d', this.path).attr('fill', this.fill).attr('class', 'player');
+    this.transform();
     this.dragging();
-    return this;
   }
   setX(x) {
     let minX = gameOptions.padding;
     let maxX = gameOptions.width - minX;
     if (x <= minX) {
-      this.x = minX;
+      x = minX;
     } else if (x >= maxX) {
-      this.x = maxX;
+      x = maxX;
     }
+    this.x = x;
   }
   setY(y) {
     let minY = gameOptions.padding;
     let maxY = gameOptions.height - minY;
     if (y <= minY) {
-      this.y = minY;
+      y = minY;
     } else if (y >= maxY) {
-      this.y = maxY;
+      y = maxY;
     }
+    this.y = y;
   }
-  transform(opts) {
-    this.setX(opts.x || this.x);
-    this.setY(opts.y || this.y);
-    this.angle = opts.angle || this.angle;
+  transform(opts = this) {
+    this.setX(opts.x);
+    this.setY(opts.y);
+    this.angle = opts.angle;
     return this.el.attr('transform', `rotate(${this.angle} ${this.x} ${this.y}) translate(${this.x} ${this.y})`);
   }
   moveAbsolute(x, y) {
@@ -74,20 +70,20 @@ class Player {
     let opts = {
       x: this.x + dx,
       y: this.y + dy,
-      angle: this.angle * (Math.atan2(dy, dx) / (Math.PI * 2))
+      angle: 360 * (Math.atan2(dy, dx) / (Math.PI * 2))
     };
     return this.transform(opts);
   }
   dragging() {
     let drag = d3.drag().on('drag', () => {
-      this.moveRelative(d3.event.dx, d3.event.dy);
+      return this.moveRelative(d3.event.dx, d3.event.dy);
     });
-    this.el.call(drag);
+    d3.selectAll('.player').call(drag);
   }
 }
 
 let players = [];
-let player = new Player().render(gameBoard);
+let player = new Player();
 players.push(player);
 
 let enemiesArray = _.range(0, gameOptions.nEnemies).map(val => {
