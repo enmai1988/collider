@@ -1,11 +1,26 @@
-body {
-  background-color: black;
-}
-
-.main {
+#main {
   margin: auto;
+  height: auto;
+  width: auto;
+  position: absolute;
 }
 
-.gameBoard {
+#gameBoard {
+  margin: auto;
   background-color: white;
+  border-radius: 0 0 5px 5px;
+}
+
+#scoreBoard {
+  float: left;
+  clear: right;
+  margin: auto;
+  width: auto;
+  padding-left: 5px;
+  border-radius: 5px 5px 0 0;
+  background-color: white;
+}
+
+h3 {
+  color: black;
 }

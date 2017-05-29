@@ -10,15 +10,15 @@ let gameStats = {
   bestScore: 0
 };
 
-let gameBoard = d3.select('.main').append('svg:svg')
+let gameBoard = d3.select('#main').append('svg')
                                   .attr('width', gameOptions.width)
                                   .attr('height', gameOptions.height)
-                                  .attr('class', 'gameBoard');
+                                  .attr('id', 'gameBoard');
 
-let axes = {
-  x: d3.scaleLinear().domain([0, 100]).range(0, gameOptions.width),
-  y: d3.scaleLinear().domain([0, 100]).range(0, gameOptions.height)
-};
+let axes = {};
+axes.x = d3.scaleLinear().domain([0, 100]).range([0, gameOptions.width]);
+axes.y = d3.scaleLinear().domain([0, 100]).range([0, gameOptions.height]);
+
 
 let updateScore = function() {
   return d3.select('#current').text(gameStats.score.toString());
@@ -68,13 +68,6 @@ class Player {
     this.angle = opts.angle;
     return this.el.attr('transform', `rotate(${this.angle} ${this.x} ${this.y}) translate(${this.x} ${this.y})`);
   }
-  // moveAbsolute(x, y) {
-  //   let opts = {
-  //     x: x,
-  //     y: y
-  //   };
-  //   return this.transform(opts);
-  // }
   movePlayer(dx, dy) {
     let opts = {
       x: this.x + dx,
@@ -95,49 +88,61 @@ let players = [];
 let player = new Player();
 players.push(player);
 
-let enemiesArray = _.range(0, gameOptions.nEnemies).map(val => {
-  return {
-    id: val,
-    x: Math.random() * 100,
-    y: Math.random() * 100
-  };
-});
-
-// let enemies = gameBoard.selectAll('enemies').data(enemiesArray, enemy => enemy.id).enter().append('svg:circle')
-//                                             .attr('class', 'enemies')
-//                                             .attr('cx', enemy => axes.x(enemy.x))
-//                                             .attr('cy', enemy => axes.y(enemy.y))
-//                                             .attr('r', 5);
-let enemies = gameBoard.selectAll('.enemy').data(enemiesArray, enemy => enemy.id).enter().append('svg:circle')
-                                            .attr('class', 'enemy')
-                                            .attr('cx', enemy => axes.x(enemy.x))
-                                            .attr('cy', enemy => axes.y(enemy.y))
-                                            .attr('r', 5);
-
-enemies.exit().remove();
-
-let enemy = d3.selectAll('.enemy');
-
-let checkCollision = function(element, onCollisionCallBack) {
-  let radiuSum = player.r + Number(element.attr('r'));
-  let xDiff = player.x - Number(element.attr('cx'));
-  let yDiff = player.y - Number(element.attr('cy'));
-  let cDiff = Math.sqrt((Math.pow(xDiff, 2) + Math.pow(yDiff, 2)));
-  if (cDiff <= radiuSum) {
-    onCollisionCallBack();
+// Construct enemies
+class Enemy {
+  constructor() {
+    this.enemisData = this.generateEnemies();
+    this.renderEnemies(this.enemisData);
+    console.log(this.enemies);
+    this.moveEnemies();
   }
-};
+  generateEnemies() {
+    return _.range(0, gameOptions.nEnemies).map(val => {
+      return {
+        id: val,
+        x: Math.random() * 100,
+        y: Math.random() * 100
+      };
+    });
+  }
+  renderEnemies(enemiesArray) {
+    let renderedEnemies = gameBoard.selectAll('.enemy').data(enemiesArray, enemy => enemy.id);
 
-let onCollision = function() {
-  updateScore();
-  updateBestScore();
-  gameStats.score = 0;
-};
+    renderedEnemies.enter().append('svg:circle')
+                   .attr('class', 'enemy')
+                   .attr('cx', enemy => axes.x(enemy.x))
+                   .attr('cy', enemy => axes.y(enemy.y))
+                   .attr('r', 0);
 
-checkCollision(enemy, onCollision);
+    renderedEnemies.exit().remove();
+  }
+  checkCollision(element, onCollisionCallBack) {
+    let radiuSum = player.r + Number(element.attr('r'));
+    let xDiff = player.x - Number(element.attr('cx'));
+    let yDiff = player.y - Number(element.attr('cy'));
+    let cDiff = Math.sqrt((Math.pow(xDiff, 2) + Math.pow(yDiff, 2)));
+    if (cDiff <= radiuSum) {
+      onCollisionCallBack();
+    }
+  }
+  onCollision() {
+    updateBestScore();
+    gameStats.score = 0;
+    updateScore();
+  }
+  moveEnemies() {
+    d3.selectAll('.enemy').transition().duration(2000)
+                                       .attr('r', 5)
+                                       .attr('cx', d => {
+                                         d = axes.x(Math.random() * 100);
+                                         return d;
+                                       })
+                                       .attr('cy', d => {
+                                         d = axes.y(Math.random() * 100);
+                                         return d;
+                                       });
 
-function moveEnemies(enemy) {
-  enemy.transition().duration(1000).attr('cx', Math.random() * 100)
-                                   .attr('cy', Math.random() * 100)
-                                   .on('end', moveEnemies);
+    setTimeout(this.moveEnemies.bind(this), 2000);
+  }
 }
+let enemies = new Enemy();
