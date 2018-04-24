@@ -1,22 +1,30 @@
 <!doctype html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>watchOut</title>
-    <!-- <link rel="stylesheet" href="styles/styles.css"> -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <!-- dependencies -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.9.1/d3.js"></script>
-    <!-- your scripts -->
-  </head>
-  <body>
-    <div id="scoreBoard">
-      <h3>Best Score: </h3><span id="best"></span>
-      <h3>Current Score: </h3><span id="current"></span>
+
+<head>
+  <meta charset="utf-8">
+  <title>watchOut</title>
+  <!-- <link rel="stylesheet" href="styles/styles.css"> -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
+    crossorigin="anonymous">
+  <!-- dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <!-- your scripts -->
+</head>
+
+<body>
+  <div style="width:100%;height:100vh;display:flex;flex-direction:column">
+    <div id="scoreBoard" style="height:120px;">
+      <h5>Best Score: </h5>
+      <span id="best">0</span>
+      <h5>Current Score: </h5>
+      <span id="current">0</span>
     </div>
     <div id="main">
-      <script src="src/watchOut.js"></script>
+      <script src="src/collider.js"></script>
     </div>
-  </body>
+  </div>
+</body>
+
 </html>
